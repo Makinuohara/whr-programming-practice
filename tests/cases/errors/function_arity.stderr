@@ -1,0 +1,1 @@
+tests/cases/errors/function_arity.whr:2:1: RuntimeError: add expects 2 argument(s), got 1

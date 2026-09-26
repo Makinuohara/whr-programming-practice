@@ -1,0 +1,3 @@
+let values <- [1];
+let alias <- values;
+show(push(values, 2), values, pop(alias), values, len(values));

@@ -1,0 +1,7 @@
+shape Point {
+    x;
+}
+let first <- form Point { x: 1 };
+let alias <- first;
+let other <- form Point { x: 1 };
+show(first == alias, first == other, Point == Point, type_of(Point), type_of(first));

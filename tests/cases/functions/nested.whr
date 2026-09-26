@@ -1,0 +1,7 @@
+craft outer(value) {
+    craft inner() {
+        give value + 1;
+    }
+    give inner();
+}
+show(outer(4));

@@ -1,0 +1,3 @@
+let values <- [null];
+values[0] <- values;
+show(values, to_string(values));

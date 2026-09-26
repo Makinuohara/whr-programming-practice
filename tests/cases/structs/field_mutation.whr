@@ -1,0 +1,6 @@
+shape Box {
+    value;
+}
+let box <- form Box { value: 4 };
+box.value <- box.value + 1;
+show(box.value, box);

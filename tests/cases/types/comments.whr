@@ -1,0 +1,3 @@
+# A comment may contain WHR-looking text: let fake <- 1;
+let message <- "# is data"; # trailing comment
+show(message);

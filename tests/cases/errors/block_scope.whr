@@ -1,0 +1,7 @@
+let count <- 0;
+{
+    count <- 1;
+    let local <- 2;
+}
+show(count);
+show(local);

@@ -1,0 +1,2 @@
+shape P { x; }
+let p <- form P { x: 1, x: 2 };

@@ -1,0 +1,1 @@
+tests/cases/errors/pop_empty.whr:1:1: RuntimeError: pop expects a non-empty array

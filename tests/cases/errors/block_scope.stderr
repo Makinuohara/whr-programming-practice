@@ -1,0 +1,1 @@
+tests/cases/errors/block_scope.whr:7:6: RuntimeError: undefined name 'local'

@@ -1,0 +1,4 @@
+craft add(a, b) {
+    give a + b;
+}
+show(add(2, 3));

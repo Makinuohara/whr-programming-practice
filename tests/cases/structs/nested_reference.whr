@@ -1,0 +1,7 @@
+shape Node {
+    value;
+    next;
+}
+let tail <- form Node { value: 2, next: null };
+let head <- form Node { value: 1, next: tail };
+show(head.next.value, head);

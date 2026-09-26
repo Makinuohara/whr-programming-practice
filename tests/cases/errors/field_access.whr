@@ -1,0 +1,3 @@
+shape P { x; }
+let p <- form P { x: 1 };
+show(p.z);

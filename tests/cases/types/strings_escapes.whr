@@ -1,0 +1,3 @@
+show("W" + "HR" == "WHR", "a#b" == "a#b", len("line\nnext"), len("tab\tend"),
+     "quote: \"ok\"" == "quote: \"ok\"",
+     "slash: \\" == "slash: \\");

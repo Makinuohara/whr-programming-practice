@@ -1,0 +1,6 @@
+shape Point {
+    x;
+    label;
+}
+let point <- form Point { label: "first", x: 1 };
+show(point);

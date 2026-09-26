@@ -1,0 +1,1 @@
+tests/cases/errors/undefined_name.whr:1:6: RuntimeError: undefined name 'missing'

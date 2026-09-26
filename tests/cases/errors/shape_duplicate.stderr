@@ -1,0 +1,1 @@
+tests/cases/errors/shape_duplicate.whr:2:25: ParseError: duplicate field 'x'

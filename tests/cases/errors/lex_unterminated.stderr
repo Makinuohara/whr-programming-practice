@@ -1,0 +1,1 @@
+tests/cases/errors/lex_unterminated.whr:1:6: LexError: unterminated string

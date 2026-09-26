@@ -1,0 +1,1 @@
+tests/cases/errors/shape_unknown.whr:2:10: RuntimeError: invalid fields for shape 'P': unknown field 'z'

@@ -1,0 +1,1 @@
+tests/cases/errors/array_bounds.whr:1:9: RuntimeError: array index 1 out of range for length 1

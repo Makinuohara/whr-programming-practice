@@ -1,0 +1,8 @@
+shape Node {
+    value;
+    next;
+}
+let node <- form Node { value: 1, next: null };
+node.next <- node;
+let values <- [node];
+show(values);

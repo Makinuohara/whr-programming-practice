@@ -1,0 +1,1 @@
+tests/cases/errors/to_int_invalid.whr:1:1: RuntimeError: cannot convert +1 to integer

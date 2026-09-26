@@ -1,0 +1,1 @@
+tests/cases/errors/array_index_type.whr:1:9: RuntimeError: array index expects integer, got boolean

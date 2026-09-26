@@ -1,0 +1,1 @@
+tests/cases/errors/parse_give.whr:1:1: ParseError: 'give' is only valid inside a function

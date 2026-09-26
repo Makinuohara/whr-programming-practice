@@ -1,0 +1,11 @@
+let counter <- 0;
+craft next() {
+    counter <- counter + 1;
+    give counter;
+}
+shape Pair {
+    first;
+    second;
+}
+let pair <- form Pair { second: next(), first: next() };
+show(pair, counter);

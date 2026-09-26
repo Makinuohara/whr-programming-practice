@@ -1,0 +1,11 @@
+shape Box {
+    value;
+}
+craft mutate(items, box) {
+    push(items, 3);
+    box.value <- box.value + 1;
+}
+let items <- [1, 2];
+let box <- form Box { value: 4 };
+mutate(items, box);
+show(items, box.value);

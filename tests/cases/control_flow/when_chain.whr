@@ -1,0 +1,8 @@
+let score <- 75;
+when score >= 90 {
+    show("A");
+} otherwise when score >= 60 {
+    show("pass");
+} otherwise {
+    show("fail");
+}

@@ -1,0 +1,1 @@
+tests/cases/errors/type_mismatch.whr:1:10: RuntimeError: + expects two integers or two strings, got string and integer

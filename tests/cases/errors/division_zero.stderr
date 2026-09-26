@@ -1,0 +1,1 @@
+tests/cases/errors/division_zero.whr:1:8: RuntimeError: division by zero

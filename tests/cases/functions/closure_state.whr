@@ -1,0 +1,10 @@
+craft counter(start) {
+    let current <- start;
+    craft next() {
+        current <- current + 1;
+        give current;
+    }
+    give next;
+}
+let next <- counter(0);
+show(next(), next(), next());

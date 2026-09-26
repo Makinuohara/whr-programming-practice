@@ -1,0 +1,1 @@
+tests/cases/errors/io_wrong_prompt.whr:1:1: RuntimeError: read expects string prompt, got integer

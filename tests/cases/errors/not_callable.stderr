@@ -1,0 +1,1 @@
+tests/cases/errors/not_callable.whr:2:1: RuntimeError: value of type integer is not callable

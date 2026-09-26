@@ -1,0 +1,8 @@
+craft make_adder(base) {
+    craft add_to(value) {
+        give base + value;
+    }
+    give add_to;
+}
+let add_five <- make_adder(5);
+show(add_five(7));

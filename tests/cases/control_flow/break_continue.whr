@@ -1,0 +1,11 @@
+let i <- -1;
+repeat while i < 5 {
+    i <- i + 1;
+    when i == 2 {
+        continue;
+    }
+    when i == 4 {
+        break;
+    }
+    show(i);
+}

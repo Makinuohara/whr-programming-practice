@@ -1,0 +1,1 @@
+tests/cases/errors/strict_boolean.whr:1:6: RuntimeError: condition expects boolean, got integer

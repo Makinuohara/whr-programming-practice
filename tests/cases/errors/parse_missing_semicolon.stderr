@@ -1,0 +1,1 @@
+tests/cases/errors/parse_missing_semicolon.whr:2:1: ParseError: expected ';' after variable declaration

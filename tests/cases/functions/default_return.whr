@@ -1,0 +1,5 @@
+craft empty() {}
+craft explicit_null() {
+    give;
+}
+show(empty(), explicit_null());

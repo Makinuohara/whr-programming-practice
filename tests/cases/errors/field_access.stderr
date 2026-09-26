@@ -1,0 +1,1 @@
+tests/cases/errors/field_access.whr:3:7: RuntimeError: shape 'P' has no field 'z'

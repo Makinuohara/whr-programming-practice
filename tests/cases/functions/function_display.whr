@@ -1,0 +1,2 @@
+craft greet() {}
+show(greet, show, to_string(greet), type_of(greet), greet == greet);

@@ -1,0 +1,12 @@
+let outer <- 0;
+repeat while outer < 2 {
+    let inner <- 0;
+    repeat while inner < 3 {
+        inner <- inner + 1;
+        when inner == 2 {
+            continue;
+        }
+        show(outer, inner);
+    }
+    outer <- outer + 1;
+}

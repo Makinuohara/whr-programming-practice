@@ -1,0 +1,4 @@
+let values <- [10, 20];
+show(values[0], values[1]);
+values[1] <- 99;
+show(values);

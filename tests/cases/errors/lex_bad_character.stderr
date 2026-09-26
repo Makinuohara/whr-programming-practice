@@ -1,0 +1,1 @@
+tests/cases/errors/lex_bad_character.whr:1:6: LexError: unexpected character '@'
