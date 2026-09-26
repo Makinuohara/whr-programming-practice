@@ -1,0 +1,298 @@
+# Campus Survival: a deterministic six-week WHR simulation.
+# Menu choices remain strings so invalid input never reaches to_int.
+
+shape Player {
+    name;
+    week;
+    energy;
+    knowledge;
+    money;
+    stress;
+    reputation;
+    health;
+    history;
+    achievements;
+}
+
+shape ActionResult {
+    action;
+    note;
+}
+
+# Keep every long-lived meter inside the rules of the simulation.
+craft clamp(value, lower, upper) {
+    when value < lower {
+        give lower;
+    }
+    when value > upper {
+        give upper;
+    }
+    give value;
+}
+
+craft normalize_player(player) {
+    player.energy <- clamp(player.energy, 0, 100);
+    player.knowledge <- clamp(player.knowledge, 0, 100);
+    player.money <- clamp(player.money, 0, 999);
+    player.stress <- clamp(player.stress, 0, 100);
+    player.reputation <- clamp(player.reputation, 0, 100);
+    player.health <- clamp(player.health, 0, 100);
+}
+
+# This helper keeps achievements unique while preserving discovery order.
+craft contains(items, wanted) {
+    let index <- 0;
+    repeat while index < len(items) {
+        when items[index] == wanted {
+            give true;
+        }
+        index <- index + 1;
+    }
+    give false;
+}
+
+craft award(player, achievement) {
+    when not contains(player.achievements, achievement) {
+        push(player.achievements, achievement);
+    }
+}
+
+craft show_status(player) {
+    show("Week", player.week, "status:");
+    show("energy", player.energy, "knowledge", player.knowledge, "money", player.money);
+    show("stress", player.stress, "reputation", player.reputation, "health", player.health);
+}
+
+craft show_menu() {
+    show("Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise");
+    show("Choose an action:");
+}
+
+craft study(player) {
+    player.energy <- player.energy - 15;
+    player.knowledge <- player.knowledge + 14;
+    player.stress <- player.stress + 7;
+    player.health <- player.health - 2;
+    normalize_player(player);
+    let result <- form ActionResult {
+        action: "study",
+        note: "You reviewed the week's lessons."
+    };
+    give result;
+}
+
+craft rest(player) {
+    player.energy <- player.energy + 25;
+    player.stress <- player.stress - 12;
+    player.health <- player.health + 4;
+    normalize_player(player);
+    let result <- form ActionResult {
+        action: "rest",
+        note: "You protected a quiet recovery block."
+    };
+    give result;
+}
+
+craft club(player) {
+    player.energy <- player.energy - 10;
+    player.knowledge <- player.knowledge + 4;
+    player.money <- player.money - 5;
+    player.stress <- player.stress + 4;
+    player.reputation <- player.reputation + 3;
+    normalize_player(player);
+    let result <- form ActionResult {
+        action: "club",
+        note: "You helped the club prepare a useful project."
+    };
+    give result;
+}
+
+craft part_time(player) {
+    player.energy <- player.energy - 18;
+    player.knowledge <- player.knowledge - 1;
+    player.money <- player.money + 30;
+    player.stress <- player.stress + 6;
+    player.health <- player.health - 1;
+    normalize_player(player);
+    let result <- form ActionResult {
+        action: "part-time",
+        note: "You earned money while protecting your study plan."
+    };
+    give result;
+}
+
+craft exercise(player) {
+    player.energy <- player.energy - 12;
+    player.stress <- player.stress - 5;
+    player.health <- player.health + 8;
+    normalize_player(player);
+    let result <- form ActionResult {
+        action: "exercise",
+        note: "You trained and cleared your head."
+    };
+    give result;
+}
+
+craft valid_choice(choice) {
+    give choice == "1" or choice == "2" or choice == "3" or choice == "4" or choice == "5";
+}
+
+craft perform_action(player, choice) {
+    when choice == "1" {
+        give study(player);
+    } otherwise when choice == "2" {
+        give rest(player);
+    } otherwise when choice == "3" {
+        give club(player);
+    } otherwise when choice == "4" {
+        give part_time(player);
+    } otherwise when choice == "5" {
+        give exercise(player);
+    }
+    give null;
+}
+
+craft record_action(player, result) {
+    let entry <- "week " + to_string(player.week) + ": " + result.action + " - " + result.note;
+    push(player.history, entry);
+}
+
+# Events are selected by week and current state; there is no random source.
+craft apply_event(player) {
+    when player.week == 3 or player.week == 6 {
+        when player.knowledge >= 45 {
+            player.money <- player.money + 15;
+            award(player, "Exam survivor");
+            normalize_player(player);
+            give "Event: exam week rewarded your preparation.";
+        } otherwise {
+            player.stress <- player.stress + 8;
+            normalize_player(player);
+            give "Event: exam week increased the pressure.";
+        }
+    } otherwise when player.week == 4 and player.reputation >= 2 {
+        player.reputation <- player.reputation + 2;
+        player.money <- player.money + 20;
+        award(player, "Showcase star");
+        normalize_player(player);
+        give "Event: the club showcase won new supporters.";
+    } otherwise when player.week == 5 and player.knowledge >= 40 {
+        player.money <- player.money + 35;
+        award(player, "Scholarship recipient");
+        normalize_player(player);
+        give "Event: a scholarship eased your budget.";
+    } otherwise when player.health <= 55 {
+        player.health <- player.health - 15;
+        player.energy <- player.energy - 10;
+        player.stress <- player.stress + 12;
+        normalize_player(player);
+        give "Event: illness forced you to slow down.";
+    } otherwise when player.stress >= 60 {
+        player.stress <- player.stress - 15;
+        player.reputation <- player.reputation + 1;
+        normalize_player(player);
+        give "Event: a counselor helped you reset your priorities.";
+    }
+    give "";
+}
+
+craft update_achievements(player) {
+    when len(player.history) >= 1 {
+        award(player, "First step");
+    }
+    when player.knowledge >= 45 {
+        award(player, "Scholar");
+    }
+    when player.reputation >= 5 {
+        award(player, "Community builder");
+    }
+    when player.health >= 90 and len(player.history) >= 5 {
+        award(player, "Healthy habit");
+    }
+    when player.week == 6 {
+        award(player, "Final week focus");
+    }
+}
+
+craft ending(player) {
+    when player.health <= 0 or player.stress >= 70 {
+        give "Burnout ending";
+    }
+    when player.knowledge >= 45 and player.reputation >= 5 {
+        give "Campus leader ending";
+    }
+    when player.knowledge >= 35 {
+        give "Academic survivor ending";
+    }
+    give "Steady graduate ending";
+}
+
+craft print_final(player) {
+    show("=== Final report ===");
+    show("Name:", player.name);
+    show("Weeks completed:", player.week - 1);
+    show("Energy:", player.energy);
+    show("Knowledge:", player.knowledge);
+    show("Money:", player.money);
+    show("Stress:", player.stress);
+    show("Reputation:", player.reputation);
+    show("Health:", player.health);
+    show("Action history:", player.history);
+    show("Achievements:", player.achievements);
+    show("Ending:", ending(player));
+    show("=== Simulation complete ===");
+}
+
+craft run_game() {
+    let name <- read();
+    when name == null {
+        show("Input ended: no player name.");
+        give;
+    }
+
+    let player <- form Player {
+        name: name,
+        week: 1,
+        energy: 75,
+        knowledge: 15,
+        money: 40,
+        stress: 20,
+        reputation: 0,
+        health: 90,
+        history: [],
+        achievements: []
+    };
+
+    show("=== Campus Survival ===");
+    show("Welcome", player.name);
+    show("Six weeks, five choices, one deterministic campus story.");
+
+    repeat while player.week <= 6 {
+        show_status(player);
+        show_menu();
+        let choice <- read();
+        when choice == null {
+            show("Input ended: simulation stopped.");
+            give;
+        }
+        when not valid_choice(choice) {
+            show("Invalid action. Choose 1, 2, 3, 4, or 5.");
+        } otherwise {
+            let result <- perform_action(player, choice);
+            record_action(player, result);
+            show("Action:", result.action);
+            show(result.note);
+            let event <- apply_event(player);
+            when event != "" {
+                show(event);
+            }
+            update_achievements(player);
+            show("Week", player.week, "complete.");
+            player.week <- player.week + 1;
+        }
+    }
+
+    print_final(player);
+}
+
+run_game();

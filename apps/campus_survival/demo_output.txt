@@ -1,0 +1,68 @@
+=== Campus Survival ===
+Welcome Alex
+Six weeks, five choices, one deterministic campus story.
+Week 1 status:
+energy 75 knowledge 15 money 40
+stress 20 reputation 0 health 90
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: study
+You reviewed the week's lessons.
+Week 1 complete.
+Week 2 status:
+energy 60 knowledge 29 money 40
+stress 27 reputation 0 health 88
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: rest
+You protected a quiet recovery block.
+Week 2 complete.
+Week 3 status:
+energy 85 knowledge 29 money 40
+stress 15 reputation 0 health 92
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: club
+You helped the club prepare a useful project.
+Event: exam week increased the pressure.
+Week 3 complete.
+Week 4 status:
+energy 75 knowledge 33 money 35
+stress 27 reputation 3 health 92
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: study
+You reviewed the week's lessons.
+Event: the club showcase won new supporters.
+Week 4 complete.
+Week 5 status:
+energy 60 knowledge 47 money 55
+stress 34 reputation 5 health 90
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: exercise
+You trained and cleared your head.
+Event: a scholarship eased your budget.
+Week 5 complete.
+Week 6 status:
+energy 48 knowledge 47 money 90
+stress 29 reputation 5 health 98
+Actions: 1 study | 2 rest | 3 club | 4 part-time | 5 exercise
+Choose an action:
+Action: part-time
+You earned money while protecting your study plan.
+Event: exam week rewarded your preparation.
+Week 6 complete.
+=== Final report ===
+Name: Alex
+Weeks completed: 6
+Energy: 30
+Knowledge: 46
+Money: 135
+Stress: 35
+Reputation: 5
+Health: 97
+Action history: ["week 1: study - You reviewed the week's lessons.", "week 2: rest - You protected a quiet recovery block.", "week 3: club - You helped the club prepare a useful project.", "week 4: study - You reviewed the week's lessons.", "week 5: exercise - You trained and cleared your head.", "week 6: part-time - You earned money while protecting your study plan."]
+Achievements: ["First step", "Showcase star", "Scholar", "Community builder", "Scholarship recipient", "Healthy habit", "Exam survivor", "Final week focus"]
+Ending: Campus leader ending
+=== Simulation complete ===
