@@ -1,0 +1,774 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-26T12:57:28.881692+00:00",
+  "environment": {
+    "python_version": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+    "python_implementation": "CPython",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "processor": "arm",
+    "git_commit": "933df4b013fc6c374cc3dc07d40dc1fcb46841e3",
+    "git_dirty": false
+  },
+  "parameters": {
+    "repetitions": 7,
+    "warmups": 2,
+    "timeout_seconds": 5.0
+  },
+  "workloads": {
+    "prime_count": {
+      "name": "prime_count",
+      "whr": "benchmarks/prime_count.whr",
+      "python": "benchmarks/prime_count.py",
+      "input": "试除法统计 2..3000 中的素数个数。",
+      "parameters": {
+        "limit": 3000
+      },
+      "algorithm": "逐候选数试除到 divisor*divisor<=candidate；找到因子立即返回。",
+      "expected_stdout": "prime_count: 430\n",
+      "validation": {
+        "ok": true,
+        "failures": []
+      },
+      "summary": {
+        "whr": {
+          "samples": 7,
+          "status": "ok",
+          "median_ns": 102773500,
+          "min_ns": 101607333,
+          "max_ns": 103772250
+        },
+        "python": {
+          "samples": 7,
+          "status": "ok",
+          "median_ns": 15040459,
+          "min_ns": 14613000,
+          "max_ns": 16074083
+        },
+        "whr_over_python": 6.833135877036732
+      }
+    },
+    "container_update": {
+      "name": "container_update",
+      "whr": "benchmarks/container_update.whr",
+      "python": "benchmarks/container_update.py",
+      "input": "创建 4000 元素数组，执行 6 轮索引更新，最后线性求和。",
+      "parameters": {
+        "size": 4000,
+        "rounds": 6
+      },
+      "algorithm": "循环 push 构造数组；双层循环按索引更新；循环读取并计算 checksum。",
+      "expected_stdout": "container: 1998000 4000 18 995\n",
+      "validation": {
+        "ok": true,
+        "failures": []
+      },
+      "summary": {
+        "whr": {
+          "samples": 7,
+          "status": "ok",
+          "median_ns": 136347750,
+          "min_ns": 134568458,
+          "max_ns": 138429958
+        },
+        "python": {
+          "samples": 7,
+          "status": "ok",
+          "median_ns": 17407666,
+          "min_ns": 16663041,
+          "max_ns": 17534417
+        },
+        "whr_over_python": 7.8326267289365505
+      }
+    }
+  },
+  "runs": [
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "validation",
+      "round": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 103425667,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "validation",
+      "round": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 15788709,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "warmup",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 103903959,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "warmup",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 14899625,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "warmup",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 14456292,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "warmup",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 101490417,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 101875834,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 15025709,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 14613000,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 101607333,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 3,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 102663250,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 3,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 14924042,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 4,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 15040459,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 4,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 103772250,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 5,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 102773500,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 5,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 16074083,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 6,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 15670208,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 6,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 103563458,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 7,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/prime_count.whr"
+      ],
+      "elapsed_ns": 103000958,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "prime_count",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 7,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/prime_count.py"
+      ],
+      "elapsed_ns": 15219292,
+      "stdout": "prime_count: 430\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "validation",
+      "round": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 135632416,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "validation",
+      "round": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17479959,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "warmup",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 136269083,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "warmup",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 16904792,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "warmup",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 16803833,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "warmup",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 136266125,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 138429958,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 1,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17534417,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17407666,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 2,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 134803208,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 3,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 136362833,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 3,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17274542,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 4,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 16924042,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 4,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 135198625,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 5,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 136347750,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 5,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17447667,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 6,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 16663041,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 6,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 134568458,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "whr",
+      "phase": "formal",
+      "round": 7,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "whr",
+        "benchmarks/container_update.whr"
+      ],
+      "elapsed_ns": 137318250,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    },
+    {
+      "workload": "container_update",
+      "implementation": "python",
+      "phase": "formal",
+      "round": 7,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "benchmarks/container_update.py"
+      ],
+      "elapsed_ns": 17468042,
+      "stdout": "container: 1998000 4000 18 995\n",
+      "stderr": "",
+      "returncode": 0,
+      "timed_out": false,
+      "output_match": true
+    }
+  ],
+  "failures": [],
+  "summary": {
+    "workloads": 2,
+    "formal_runs": 28,
+    "failures": 0,
+    "status": "ok"
+  }
+}
