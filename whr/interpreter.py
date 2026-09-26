@@ -1,9 +1,9 @@
-"""Stage 2 tree-walk interpreter for WHR."""
+"""Tree-walk interpreter for the complete WHR v1.0 runtime."""
 
 from __future__ import annotations
 
+import re
 import sys
-from dataclasses import dataclass
 from typing import Any, Optional, TextIO
 
 from . import ast_nodes as ast
@@ -11,39 +11,32 @@ from .builtins import BuiltinFunction, _is_integer, show, stringify, type_name
 from .environment import Environment
 from .errors import RuntimeError
 from .parser import parse_source
+from .values import ShapeInstance, ShapeType, UserFunction
 
 
 class BreakSignal(Exception):
-    pass
+    """Internal control-flow signal for the nearest loop."""
 
 
 class ContinueSignal(Exception):
-    pass
+    """Internal control-flow signal for the nearest loop."""
 
 
 class GiveSignal(Exception):
-    """Reserved for the function runtime completed in stage 3."""
+    """Internal control-flow signal carrying a function return value."""
 
     def __init__(self, value: Any):
+        super().__init__()
         self.value = value
 
 
-@dataclass(frozen=True)
-class FunctionStub:
-    """A parsed user function, kept as a value until the function stage."""
-
-    declaration: ast.FunctionDeclaration
-
-
-@dataclass(frozen=True)
-class ShapeStub:
-    """A parsed shape declaration, kept as a value until the shape stage."""
-
-    declaration: ast.ShapeDeclaration
+# Compatibility aliases for code written against the stage-2 placeholders.
+FunctionStub = UserFunction
+ShapeStub = ShapeType
 
 
 class Interpreter:
-    """Execute the stage-2 subset of a parsed WHR program."""
+    """Execute a parsed WHR program using lexical environments."""
 
     def __init__(self, stdout: Optional[TextIO] = None, stdin: Optional[TextIO] = None):
         self.stdout = stdout if stdout is not None else sys.stdout
@@ -53,7 +46,17 @@ class Interpreter:
 
     def _install_builtins(self) -> None:
         synthetic = type("BuiltinToken", (), {"line": 1, "column": 1})()
-        self.environment.define("show", BuiltinFunction("show"), synthetic)
+        for name in (
+            "show",
+            "read",
+            "len",
+            "push",
+            "pop",
+            "to_int",
+            "to_string",
+            "type_of",
+        ):
+            self.environment.define(name, BuiltinFunction(name), synthetic)
 
     def interpret(self, program: ast.Program) -> None:
         for declaration in program.declarations:
@@ -97,14 +100,15 @@ class Interpreter:
         if isinstance(node, ast.ContinueStatement):
             raise ContinueSignal()
         if isinstance(node, ast.GiveStatement):
-            # Parser rejects this at top level, but keeping the guard makes
-            # the AST API safe for callers that construct nodes themselves.
-            raise RuntimeError("'give' cannot execute before function support", node.token.line, node.token.column)
+            value = None if node.value is None else self._evaluate(node.value)
+            raise GiveSignal(value)
         if isinstance(node, ast.FunctionDeclaration):
-            self.environment.define(node.name, FunctionStub(node), node.token)
+            function = UserFunction(node, self.environment)
+            self.environment.define(node.name, function, node.token)
             return
         if isinstance(node, ast.ShapeDeclaration):
-            self.environment.define(node.name, ShapeStub(node), node.token)
+            shape_type = ShapeType(node.name, tuple(node.fields), node)
+            self.environment.define(node.name, shape_type, node.token)
             return
         raise RuntimeError("unsupported statement", node.token.line, node.token.column)
 
@@ -125,11 +129,7 @@ class Interpreter:
         if isinstance(node, ast.ArrayLiteral):
             return [self._evaluate(element) for element in node.elements]
         if isinstance(node, ast.ShapeInitializer):
-            raise RuntimeError(
-                "shape initialization is not available in interpreter stage 2",
-                node.token.line,
-                node.token.column,
-            )
+            return self._evaluate_shape_initializer(node)
         if isinstance(node, ast.Unary):
             operand = self._evaluate(node.operand)
             if node.operator.lexeme == "-":
@@ -149,14 +149,49 @@ class Interpreter:
         if isinstance(node, ast.Index):
             return self._read_index(node)
         if isinstance(node, ast.FieldAccess):
-            raise RuntimeError(
-                "shape field access is not available in interpreter stage 2",
-                node.token.line,
-                node.token.column,
-            )
+            return self._read_field(node)
         if isinstance(node, ast.Call):
             return self._evaluate_call(node)
         raise RuntimeError("unsupported expression", node.token.line, node.token.column)
+
+    def _evaluate_shape_initializer(self, node: ast.ShapeInitializer) -> ShapeInstance:
+        shape_value = self.environment.get(node.name, node.token)
+        if not isinstance(shape_value, ShapeType):
+            raise RuntimeError(
+                f"value of type {type_name(shape_value)} is not a shape type",
+                node.token.line,
+                node.token.column,
+            )
+
+        evaluated: dict[str, Any] = {}
+        for field in node.fields:
+            # Parser has already rejected duplicate field names.  Keeping the
+            # assignment explicit preserves source-order evaluation.
+            evaluated[field.name] = self._evaluate(field.value)
+
+        declared = set(shape_value.fields)
+        unknown = [name for name in evaluated if name not in declared]
+        missing = [name for name in shape_value.fields if name not in evaluated]
+        if unknown or missing:
+            details: list[str] = []
+            if missing:
+                if len(missing) == 1:
+                    details.append(f"missing field '{missing[0]}'")
+                else:
+                    details.append("missing fields " + ", ".join(f"'{name}'" for name in missing))
+            if unknown:
+                if len(unknown) == 1:
+                    details.append(f"unknown field '{unknown[0]}'")
+                else:
+                    details.append("unknown fields " + ", ".join(f"'{name}'" for name in unknown))
+            raise RuntimeError(
+                f"invalid fields for shape '{shape_value.name}': " + "; ".join(details),
+                node.token.line,
+                node.token.column,
+            )
+
+        values = {name: evaluated[name] for name in shape_value.fields}
+        return ShapeInstance(shape_value, values)
 
     def _evaluate_binary(self, node: ast.Binary) -> Any:
         operator = node.operator.lexeme
@@ -236,7 +271,10 @@ class Interpreter:
     def _equal(self, left: Any, right: Any) -> bool:
         if type_name(left) != type_name(right):
             return False
-        if isinstance(left, (list, FunctionStub, BuiltinFunction, ShapeStub)):
+        if isinstance(
+            left,
+            (list, BuiltinFunction, UserFunction, ShapeType, ShapeInstance),
+        ):
             return left is right
         return left == right
 
@@ -251,10 +289,13 @@ class Interpreter:
             self._check_index(container, index, node.target.token)
             container[index] = value
             return value
+        if isinstance(node.target, ast.FieldAccess):
+            instance = self._evaluate(node.target.object)
+            value = self._evaluate(node.value)
+            self._write_field(instance, node.target.name, value, node.target.token)
+            return value
         raise RuntimeError(
-            "shape field assignment is not available in interpreter stage 2",
-            node.token.line,
-            node.token.column,
+            "invalid assignment target", node.token.line, node.token.column
         )
 
     def _read_index(self, node: ast.Index) -> Any:
@@ -283,17 +324,179 @@ class Interpreter:
                 getattr(token, "column", None),
             )
 
+    def _read_field(self, node: ast.FieldAccess) -> Any:
+        instance = self._evaluate(node.object)
+        self._require_shape_instance(instance, node.token)
+        if node.name not in instance.fields:
+            self._missing_field(instance, node.name, node.token)
+        return instance.fields[node.name]
+
+    def _write_field(
+        self, instance: Any, name: str, value: Any, token: object
+    ) -> None:
+        self._require_shape_instance(instance, token)
+        if name not in instance.fields:
+            self._missing_field(instance, name, token)
+        instance.fields[name] = value
+
+    def _require_shape_instance(self, value: Any, token: object) -> None:
+        if not isinstance(value, ShapeInstance):
+            raise RuntimeError(
+                f"field access expects shape, got {type_name(value)}",
+                getattr(token, "line", None),
+                getattr(token, "column", None),
+            )
+
+    def _missing_field(self, instance: ShapeInstance, name: str, token: object) -> None:
+        raise RuntimeError(
+            f"shape '{instance.shape_type.name}' has no field '{name}'",
+            getattr(token, "line", None),
+            getattr(token, "column", None),
+        )
+
     def _evaluate_call(self, node: ast.Call) -> Any:
         callee = self._evaluate(node.callee)
         arguments = [self._evaluate(argument) for argument in node.arguments]
-        if isinstance(callee, BuiltinFunction) and callee.name == "show":
-            show(arguments, self.stdout)
-            return None
+        return self._call_value(callee, arguments, node.token)
+
+    def _call_value(self, callee: Any, arguments: list[Any], token: object) -> Any:
+        if isinstance(callee, BuiltinFunction):
+            return self._call_builtin(callee.name, arguments, token)
+        if isinstance(callee, UserFunction):
+            return self._call_user_function(callee, arguments, token)
         raise RuntimeError(
             f"value of type {type_name(callee)} is not callable",
-            node.token.line,
-            node.token.column,
+            getattr(token, "line", None),
+            getattr(token, "column", None),
         )
+
+    def _call_user_function(
+        self, function: UserFunction, arguments: list[Any], token: object
+    ) -> Any:
+        self._require_argument_count(function.name, len(function.parameters), len(arguments), token)
+        call_environment = Environment(function.closure)
+        for name, value in zip(function.parameters, arguments):
+            call_environment.define(name, value, token)
+
+        previous = self.environment
+        try:
+            self.environment = call_environment
+            try:
+                for declaration in function.declaration.body.declarations:
+                    self._execute(declaration)
+            except GiveSignal as signal:
+                return signal.value
+            return None
+        finally:
+            self.environment = previous
+
+    def _call_builtin(self, name: str, arguments: list[Any], token: object) -> Any:
+        if name == "show":
+            show(arguments, self.stdout)
+            return None
+        if name == "read":
+            if len(arguments) not in (0, 1):
+                raise RuntimeError(
+                    f"read expects 0 or 1 argument(s), got {len(arguments)}",
+                    getattr(token, "line", None),
+                    getattr(token, "column", None),
+                )
+            return self._builtin_read(arguments, token)
+        if name == "len":
+            self._require_argument_count(name, 1, len(arguments), token)
+            value = arguments[0]
+            if isinstance(value, (str, list)):
+                return len(value)
+            raise RuntimeError(
+                f"len expects string or array, got {type_name(value)}",
+                getattr(token, "line", None),
+                getattr(token, "column", None),
+            )
+        if name == "push":
+            self._require_argument_count(name, 2, len(arguments), token)
+            array = arguments[0]
+            if not isinstance(array, list):
+                raise RuntimeError(
+                    f"push expects array, got {type_name(array)}",
+                    getattr(token, "line", None),
+                    getattr(token, "column", None),
+                )
+            array.append(arguments[1])
+            return len(array)
+        if name == "pop":
+            self._require_argument_count(name, 1, len(arguments), token)
+            array = arguments[0]
+            if not isinstance(array, list):
+                raise RuntimeError(
+                    f"pop expects array, got {type_name(array)}",
+                    getattr(token, "line", None),
+                    getattr(token, "column", None),
+                )
+            if not array:
+                raise RuntimeError(
+                    "pop expects a non-empty array",
+                    getattr(token, "line", None),
+                    getattr(token, "column", None),
+                )
+            return array.pop()
+        if name == "to_int":
+            self._require_argument_count(name, 1, len(arguments), token)
+            return self._builtin_to_int(arguments[0], token)
+        if name == "to_string":
+            self._require_argument_count(name, 1, len(arguments), token)
+            value = arguments[0]
+            return value if isinstance(value, str) else stringify(value)
+        if name == "type_of":
+            self._require_argument_count(name, 1, len(arguments), token)
+            return type_name(arguments[0])
+        raise RuntimeError(
+            f"unknown builtin '{name}'",
+            getattr(token, "line", None),
+            getattr(token, "column", None),
+        )
+
+    def _builtin_read(self, arguments: list[Any], token: object) -> Optional[str]:
+        if arguments:
+            prompt = arguments[0]
+            if not isinstance(prompt, str):
+                raise RuntimeError(
+                    f"read expects string prompt, got {type_name(prompt)}",
+                    getattr(token, "line", None),
+                    getattr(token, "column", None),
+                )
+            self.stdout.write(prompt)
+            self.stdout.flush()
+        line = self.stdin.readline()
+        if line == "":
+            return None
+        if line.endswith("\n"):
+            line = line[:-1]
+            if line.endswith("\r"):
+                line = line[:-1]
+        elif line.endswith("\r"):
+            line = line[:-1]
+        return line
+
+    def _builtin_to_int(self, value: Any, token: object) -> int:
+        if _is_integer(value):
+            return value
+        if isinstance(value, str) and re.fullmatch(r"-?[0-9]+", value):
+            return int(value)
+        raise RuntimeError(
+            f"cannot convert {stringify(value, direct_string=True)} to integer",
+            getattr(token, "line", None),
+            getattr(token, "column", None),
+        )
+
+    def _require_argument_count(
+        self, name: str, expected: int, actual: int, token: object
+    ) -> None:
+        if expected != actual:
+            raise RuntimeError(
+                f"{name} expects {expected} argument(s), got {actual}",
+                getattr(token, "line", None),
+                getattr(token, "column", None),
+            )
 
     def _require_boolean(
         self, value: Any, token: object, *, operator: str = "condition"

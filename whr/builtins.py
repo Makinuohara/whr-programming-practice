@@ -1,37 +1,39 @@
-"""Stage-2 built-in functions and deterministic value formatting."""
+"""Built-in function values and deterministic WHR text formatting."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Optional, TextIO
 
+from .values import ShapeInstance, ShapeType, UserFunction
+
 
 @dataclass(frozen=True)
 class BuiltinFunction:
+    """A named host function exposed through the WHR global environment."""
+
     name: str
 
 
 def type_name(value: Any) -> str:
+    """Return the language-level type name for a runtime value."""
+
     if value is None:
         return "null"
     if isinstance(value, bool):
         return "boolean"
-    if isinstance(value, int):
+    if _is_integer(value):
         return "integer"
     if isinstance(value, str):
         return "string"
     if isinstance(value, list):
         return "array"
-    if isinstance(value, BuiltinFunction):
+    if isinstance(value, (BuiltinFunction, UserFunction)):
         return "function"
-    # The two marker classes are imported lazily to keep this module usable by
-    # the interpreter without a circular import.
-    from .interpreter import FunctionStub, ShapeStub
-
-    if isinstance(value, FunctionStub):
-        return "function"
-    if isinstance(value, ShapeStub):
+    if isinstance(value, ShapeType):
         return "shape_type"
+    if isinstance(value, ShapeInstance):
+        return "shape"
     return "value"
 
 
@@ -55,7 +57,7 @@ def stringify(
     direct_string: bool = False,
     seen: Optional[set[int]] = None,
 ) -> str:
-    """Return deterministic WHR text for values used by ``show``."""
+    """Render a value according to WHR's deterministic text representation."""
 
     if value is None:
         return "null"
@@ -65,9 +67,9 @@ def stringify(
         return str(value)
     if isinstance(value, str):
         return value if direct_string else f'"{_format_string(value)}"'
+    if seen is None:
+        seen = set()
     if isinstance(value, list):
-        if seen is None:
-            seen = set()
         identity = id(value)
         if identity in seen:
             return "<cycle>"
@@ -77,17 +79,28 @@ def stringify(
         ) + "]"
         seen.remove(identity)
         return result
+    if isinstance(value, ShapeInstance):
+        identity = id(value)
+        if identity in seen:
+            return "<cycle>"
+        seen.add(identity)
+        result = value.shape_type.name + "{" + ", ".join(
+            f"{field}: {stringify(value.fields[field], seen=seen)}"
+            for field in value.shape_type.fields
+        ) + "}"
+        seen.remove(identity)
+        return result
+    if isinstance(value, UserFunction):
+        return f"<craft {value.name}>"
     if isinstance(value, BuiltinFunction):
         return f"<builtin {value.name}>"
-    from .interpreter import FunctionStub, ShapeStub
-
-    if isinstance(value, FunctionStub):
-        return f"<craft {value.declaration.name}>"
-    if isinstance(value, ShapeStub):
-        return f"<shape {value.declaration.name}>"
+    if isinstance(value, ShapeType):
+        return f"<shape {value.name}>"
     return str(value)
 
 
 def show(values: list[Any], stdout: TextIO) -> None:
+    """Write values separated by one space and terminated by one newline."""
+
     stdout.write(" ".join(stringify(value, direct_string=True) for value in values) + "\n")
     stdout.flush()
