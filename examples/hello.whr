@@ -1,0 +1,2 @@
+# The smallest deterministic WHR program.
+show("Hello from WHR");

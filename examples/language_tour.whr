@@ -18,7 +18,7 @@ craft average(items) {
     give sum(items) / len(items);
 }
 
-let student <- Student {
+let student <- form Student {
     name: "WHR",
     scores: [92, 88, 96]
 };

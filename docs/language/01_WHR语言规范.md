@@ -1,6 +1,6 @@
 # WHR 语言规范 v1.0
 
-状态：**冻结**
+状态：**冻结（含勘误 1）**
 
 规范版本：1.0
 
@@ -11,7 +11,7 @@
 WHR 取自作者姓名拼音首字母，是一种动态类型、解释执行、面向脚本任务的通用语言。它有意采用容易阅读但不照搬某一种现存语言的语法组合：
 
 - `let name <- value;` 使用左箭头表示数据流入变量；
-- `shape` 声明结构类型，使用具名字段构造实例；
+- `shape` 声明结构类型，`form` 使用具名字段构造实例；
 - `craft` 和 `give` 分别表示函数与返回；
 - `when`、`otherwise` 和 `repeat while` 表示控制流；
 - 花括号表示代码块，分号结束简单语句；
@@ -52,7 +52,7 @@ let message <- "# 不是注释"; # 行尾注释
 以下单词不能作为标识符：
 
 ```text
-let shape craft give when otherwise repeat while
+let shape form craft give when otherwise repeat while
 break continue true false null and or not
 ```
 
@@ -103,7 +103,7 @@ declaration      = shapeDeclaration
                  | variableDeclaration
                  | statement ;
 
-shapeDeclaration = "shape" IDENTIFIER "{" fieldDeclaration* "}" ;
+shapeDeclaration = "shape" IDENTIFIER "{" fieldDeclaration+ "}" ;
 fieldDeclaration = IDENTIFIER ";" ;
 
 functionDeclaration
@@ -153,13 +153,13 @@ primary          = INTEGER
                  | "true"
                  | "false"
                  | "null"
-                 | IDENTIFIER
                  | arrayLiteral
                  | shapeInitializer
+                 | IDENTIFIER
                  | "(" expression ")" ;
 
 arrayLiteral     = "[" arguments? "]" ;
-shapeInitializer = IDENTIFIER "{" fieldInitializer
+shapeInitializer = "form" IDENTIFIER "{" fieldInitializer
                    ( "," fieldInitializer )* ","? "}" ;
 fieldInitializer = IDENTIFIER ":" expression ;
 ```
@@ -167,7 +167,7 @@ fieldInitializer = IDENTIFIER ":" expression ;
 补充语法约束：
 
 1. 参数名、结构字段名和结构初始化字段名在各自列表内不得重复。
-2. `shapeInitializer` 至少包含一个字段，因此 v1.0 不允许零字段结构。
+2. 结构声明和 `shapeInitializer` 都至少包含一个字段，因此 v1.0 不允许零字段结构。
 3. 赋值左侧只能是变量、数组索引或结构字段访问，否则是语法错误。
 4. `give` 只能出现在函数体内；`break` 和 `continue` 只能出现在循环体内。违反时为语法错误。
 5. 单次函数声明和调用最多允许 255 个参数；超过限制是语法错误。
@@ -299,7 +299,7 @@ shape Student {
     score;
 }
 
-let s <- Student { name: "Alice", score: 95 };
+let s <- form Student { name: "Alice", score: 95 };
 s.score <- 96;
 show(s.name);
 ```
@@ -389,7 +389,13 @@ show("hello", name);
 
 结构字段按照声明顺序显示。直接或间接包含自身的数组/结构使用 `<cycle>` 代替递归部分，保证输出能够结束。
 
-## 13. 错误与进程约定
+## 13. 规范勘误记录
+
+### 勘误 1：结构构造增加 `form`（2026-09-26）
+
+最初草案使用 `Student { name: "Alice" }`。阶段 2 解析器主审发现，该写法与无括号控制流 `when ok { ... }` 在 `IDENTIFIER` 后产生不可接受的语法歧义。正式写法改为 `form Student { name: "Alice" }`。这使结构构造和控制流块可由一个 Token 明确区分，也增强了 WHR 的自身语法特色。
+
+## 14. 错误与进程约定
 
 完整约定见 [错误模型](03_错误模型.md)。原则如下：
 
@@ -399,7 +405,7 @@ show("hello", name);
 - 成功退出码为 0；命令用法、词法、语法、运行时和文件 I/O 错误使用不同非零退出码。
 - WHR v1.0 没有用户级异常捕获，因此运行时错误总会传播到 CLI。
 
-## 14. 命令行接口
+## 15. 命令行接口
 
 ```text
 python -m whr [--check] FILE
@@ -411,6 +417,6 @@ python -m whr --version
 - `--version` 输出语言和解释器版本。
 - v1.0 不提供 REPL、从 `-c` 执行源码或多文件模块系统。
 
-## 15. 确定性与实现自由
+## 16. 确定性与实现自由
 
 在相同源码和相同标准输入下，WHR v1.0 程序应产生相同的标准输出、标准错误类别和退出码。宿主实现可以自由组织内部类和模块，但不能改变本规范可观察到的行为。
