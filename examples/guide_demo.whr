@@ -1,0 +1,50 @@
+# A compact tour of the main WHR v1.0 features.
+shape Student {
+    name;
+    scores;
+}
+
+craft sum(items) {
+    let total <- 0;
+    let i <- 0;
+    repeat while i < len(items) {
+        total <- total + items[i];
+        i <- i + 1;
+    }
+    give total;
+}
+
+craft make_checker(limit) {
+    craft check(value) {
+        give value >= limit;
+    }
+    give check;
+}
+
+let student <- form Student {
+    name: "Alice",
+    scores: [92, 88, 96]
+};
+push(student.scores, 100);
+
+let total <- sum(student.scores);
+let average <- total / len(student.scores);
+let passed <- make_checker(60);
+
+show("student:", student.name);
+show("scores:", student.scores);
+show("average:", average);
+when passed(average) and average >= 90 {
+    show("level: excellent");
+} otherwise when passed(average) {
+    show("level: pass");
+} otherwise {
+    show("level: retry");
+}
+
+let answer <- read("demo input: ");
+when answer == null {
+    show("input: EOF");
+} otherwise {
+    show("input:", answer);
+}

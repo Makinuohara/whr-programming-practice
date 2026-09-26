@@ -1,0 +1,66 @@
+# Generated in an independent forward test of the WHR Agent Skill.
+shape Student {
+    name;
+    scores;
+}
+
+craft total_score(scores) {
+    let total <- 0;
+    let index <- 0;
+    repeat while index < len(scores) {
+        total <- total + scores[index];
+        index <- index + 1;
+    }
+    give total;
+}
+
+craft highest_score(scores) {
+    let highest <- scores[0];
+    let index <- 1;
+    repeat while index < len(scores) {
+        when scores[index] > highest {
+            highest <- scores[index];
+        }
+        index <- index + 1;
+    }
+    give highest;
+}
+
+craft report() {
+    let raw_name <- read();
+    when raw_name == null {
+        show("input error");
+        give;
+    }
+
+    let scores <- [];
+    let index <- 0;
+    repeat while index < 3 {
+        let raw_score <- read();
+        when raw_score == null {
+            show("input error");
+            give;
+        }
+        push(scores, to_int(raw_score));
+        index <- index + 1;
+    }
+
+    let student <- form Student {
+        name: raw_name,
+        scores: scores
+    };
+    let total <- total_score(student.scores);
+    let average <- total / len(student.scores);
+    let highest <- highest_score(student.scores);
+    let level <- "retry";
+
+    when average >= 90 {
+        level <- "excellent";
+    } otherwise when average >= 60 {
+        level <- "pass";
+    }
+
+    show(student.name, student.scores, total, average, highest, level);
+}
+
+report();
