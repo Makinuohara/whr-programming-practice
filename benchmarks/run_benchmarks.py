@@ -422,10 +422,19 @@ def _git_value(*arguments: str) -> Optional[str]:
         return None
     if result.returncode != 0:
         return None
-    return result.stdout.strip() or None
+    return result.stdout.strip()
+
+
+def _git_dirty_from_status(status: Optional[str]) -> Optional[bool]:
+    """Map git status output to clean/dirty without conflating unavailable Git."""
+
+    if status is None:
+        return None
+    return bool(status.strip())
 
 
 def environment_snapshot() -> dict[str, Any]:
+    status = _git_value("status", "--porcelain")
     return {
         "python_version": sys.version,
         "python_implementation": platform.python_implementation(),
@@ -433,7 +442,7 @@ def environment_snapshot() -> dict[str, Any]:
         "machine": platform.machine(),
         "processor": platform.processor(),
         "git_commit": _git_value("rev-parse", "HEAD") or "unknown",
-        "git_dirty": _git_value("status", "--porcelain") != "",
+        "git_dirty": _git_dirty_from_status(status),
     }
 
 

@@ -6,6 +6,7 @@ from benchmarks.run_benchmarks import (
     Execution,
     compare_pair,
     discover_workloads,
+    _git_dirty_from_status,
     render_report,
     summarize_records,
 )
@@ -34,6 +35,12 @@ def execution(
 
 
 class BenchmarkTests(unittest.TestCase):
+    def test_git_status_mapping_distinguishes_clean_dirty_and_unavailable(self) -> None:
+        self.assertFalse(_git_dirty_from_status(""))
+        self.assertFalse(_git_dirty_from_status("\n"))
+        self.assertTrue(_git_dirty_from_status(" M benchmarks/run_benchmarks.py\n"))
+        self.assertIsNone(_git_dirty_from_status(None))
+
     def test_workloads_have_paired_sources_and_fixed_parameters(self) -> None:
         workloads = discover_workloads()
         self.assertEqual({workload.name for workload in workloads}, {"prime_count", "container_update"})
