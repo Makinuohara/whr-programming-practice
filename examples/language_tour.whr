@@ -1,0 +1,39 @@
+# WHR v1.0 语言功能导览（阶段 1 规范示例）
+
+shape Student {
+    name;
+    scores;
+}
+craft sum(items) {
+    let total <- 0;
+    let i <- 0;
+    repeat while i < len(items) {
+        total <- total + items[i];
+        i <- i + 1;
+    }
+    give total;
+}
+
+craft average(items) {
+    give sum(items) / len(items);
+}
+
+let student <- Student {
+    name: "WHR",
+    scores: [92, 88, 96]
+};
+
+push(student.scores, 100);
+let result <- average(student.scores);
+
+show("student:", student.name);
+show("scores:", student.scores);
+show("average:", result);
+
+when result >= 90 {
+    show("level: excellent");
+} otherwise when result >= 60 {
+    show("level: pass");
+} otherwise {
+    show("level: keep going");
+}

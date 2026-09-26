@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+
+# 本仓库只管理 WHR 课程设计；以下是同级目录中的其他课程材料。
+/2026-jieqi-AI/
+/git作业交付/
+
+# 性能报告保留 JSON 原始结果，但忽略临时文件。
+/benchmarks/results/tmp/
