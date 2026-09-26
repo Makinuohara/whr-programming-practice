@@ -11,7 +11,7 @@ from .token import Token, TokenKind
 from .values import ShapeInstance, ShapeType, UserFunction
 
 LANGUAGE_VERSION = "1.0"
-INTERPRETER_VERSION = "0.2.0"
+INTERPRETER_VERSION = "1.0.0"
 VERSION = f"WHR {LANGUAGE_VERSION} (interpreter {INTERPRETER_VERSION})"
 
 __all__ = [

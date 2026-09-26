@@ -8,6 +8,8 @@ htmlcov/
 venv/
 dist/
 build/
+.build/
+/tmp/
 
 # 本仓库只管理 WHR 课程设计；以下是同级目录中的其他课程材料。
 /2026-jieqi-AI/
