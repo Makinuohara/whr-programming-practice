@@ -1,0 +1,27 @@
+# Array construction, indexed updates and checksum benchmark.
+let size <- 4000;
+let rounds <- 6;
+let values <- [];
+let i <- 0;
+repeat while i < size {
+    push(values, (i * 17 + 3) % 1000);
+    i <- i + 1;
+}
+
+let round <- 0;
+repeat while round < rounds {
+    i <- 0;
+    repeat while i < size {
+        values[i] <- (values[i] + round + i) % 1000;
+        i <- i + 1;
+    }
+    round <- round + 1;
+}
+
+let checksum <- 0;
+i <- 0;
+repeat while i < size {
+    checksum <- checksum + values[i];
+    i <- i + 1;
+}
+show("container:", checksum, len(values), values[0], values[size - 1]);

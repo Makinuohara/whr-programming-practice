@@ -1,0 +1,30 @@
+# Trial-division prime counting benchmark.
+let limit <- 3000;
+
+craft is_prime(n) {
+    when n < 2 {
+        give false;
+    }
+    let divisor <- 2;
+    repeat while divisor * divisor <= n {
+        when n % divisor == 0 {
+            give false;
+        }
+        divisor <- divisor + 1;
+    }
+    give true;
+}
+
+craft count_primes(bound) {
+    let count <- 0;
+    let candidate <- 2;
+    repeat while candidate <= bound {
+        when is_prime(candidate) {
+            count <- count + 1;
+        }
+        candidate <- candidate + 1;
+    }
+    give count;
+}
+
+show("prime_count:", count_primes(limit));
